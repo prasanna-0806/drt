@@ -209,7 +209,7 @@ Copy the files from `.claude/commands/` into your drt project's `.claude/command
 |---------|-------|
 | **v0.1** ✅ | BigQuery / DuckDB / Postgres sources · REST API / Slack / GitHub Actions / HubSpot destinations · CLI · dry-run |
 | **v0.2** ✅ | Incremental sync (`cursor_field` watermark) · retry config per-sync · 53 tests |
-| **v0.3** ✅ | MCP Server (`drt mcp run`) · AI Skills for Claude Code · LLM-readable docs · row-level errors · 82 tests |
+| **v0.3** ✅ | MCP Server (`drt mcp run`) · AI Skills for Claude Code · LLM-readable docs · row-level errors |
 | v0.4 | Dagster / Airflow integration · Google Sheets connector · Snowflake source |
 | v1.x | Rust engine (PyO3) |
 
