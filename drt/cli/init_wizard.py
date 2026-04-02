@@ -22,6 +22,7 @@ from drt.config.credentials import (
     PostgresProfile,
     ProfileConfig,
     RedshiftProfile,
+    SQLiteProfile,
     save_profile,
 )
 
@@ -30,7 +31,7 @@ from drt.config.credentials import (
 class InitAnswers:
     project_name: str
     profile_name: str
-    source_type: Literal["bigquery", "duckdb", "postgres", "redshift"]
+    source_type: Literal["bigquery", "duckdb", "sqlite", "postgres", "redshift"]
     # BigQuery
     gcp_project: str = ""
     dataset: str = ""
@@ -39,6 +40,8 @@ class InitAnswers:
     keyfile: str | None = None
     # DuckDB
     duckdb_database: str = ":memory:"
+    # SQLite
+    sqlite_database: str = "./data/local.db"
     # Postgres
     pg_host: str = "localhost"
     pg_port: int = 5432
@@ -63,11 +66,12 @@ def run_wizard() -> InitAnswers:
     project_name = typer.prompt("  Project name", default=Path.cwd().name)
     profile_name = typer.prompt("  Profile name", default="dev")
     raw_source = typer.prompt(
-        "  Source type [bigquery/duckdb/postgres/redshift]",
+        "  Source type [bigquery/duckdb/sqlite/postgres/redshift]",
         default="bigquery",
     )
-    source_type: Literal["bigquery", "duckdb", "postgres", "redshift"] = (
-        raw_source if raw_source in ("bigquery", "duckdb", "postgres", "redshift") else "bigquery"
+    _valid = ("bigquery", "duckdb", "sqlite", "postgres", "redshift")
+    source_type: Literal["bigquery", "duckdb", "sqlite", "postgres", "redshift"] = (
+        raw_source if raw_source in _valid else "bigquery"
     )
 
     answers = InitAnswers(
@@ -97,6 +101,12 @@ def run_wizard() -> InitAnswers:
         answers.duckdb_database = typer.prompt(
             "  DuckDB database path (:memory: for in-memory)",
             default=":memory:",
+        )
+
+    elif source_type == "sqlite":
+        answers.sqlite_database = typer.prompt(
+            "  SQLite database path",
+            default="./data/local.db",
         )
 
     elif source_type == "postgres":
@@ -180,6 +190,11 @@ def scaffold_project(answers: InitAnswers, project_dir: Path) -> list[str]:
         profile = DuckDBProfile(
             type="duckdb",
             database=answers.duckdb_database,
+        )
+    elif answers.source_type == "sqlite":
+        profile = SQLiteProfile(
+            type="sqlite",
+            database=answers.sqlite_database,
         )
     elif answers.source_type == "postgres":
         profile = PostgresProfile(
